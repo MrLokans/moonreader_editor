@@ -2,6 +2,9 @@ import os
 import sys
 import logging
 
+from moonreader_tools.handlers import FilesystemDownloader
+
+
 from PyQt5.QtWidgets import (
     QApplication,
     QLabel,
@@ -21,6 +24,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.books = []
         self.initUI()
 
     def initUI(self):
@@ -44,8 +48,13 @@ class MainWindow(QMainWindow):
         self.show()
 
     def showDialog(self):
-        fname = QFileDialog.getExistingDirectory(self, 'Open dir', HOME_DIR)
-        self.textEdit.setText(fname)
+        search_dir = QFileDialog.getExistingDirectory(self, 'Open dir', HOME_DIR)
+        print(search_dir)
+        handler = FilesystemDownloader()
+        self.books = [b for b in handler.get_books(path=search_dir)]
+
+        book_titles = "\n".join(b.title for b in self.books)
+        self.textEdit.setText(book_titles)
 
 
 if __name__ == '__main__':
