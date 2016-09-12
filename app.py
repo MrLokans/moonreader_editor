@@ -13,11 +13,17 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QTextEdit,
     QMainWindow,
+    QTableWidget,
+    QTableWidgetItem,
 )
 
 logger = logging.getLogger('GUI')
 
 HOME_DIR = os.path.expanduser('~')
+
+
+BOOK_TABLE_COLUMNS = 4
+BOOK_TABLE_HEADER = ['title', 'pages', 'percentage', 'notes']
 
 
 class MainWindow(QMainWindow):
@@ -29,8 +35,10 @@ class MainWindow(QMainWindow):
 
     def initUI(self):
 
+        self.booksTable = QTableWidget(1, BOOK_TABLE_COLUMNS, parent=self)
+        self.booksTable.setHorizontalHeaderLabels(BOOK_TABLE_HEADER)
         self.textEdit = QTextEdit()
-        self.setCentralWidget(self.textEdit)
+        self.setCentralWidget(self.booksTable)
         self.statusBar()
 
         openFile = QAction('Open', self)
@@ -42,19 +50,34 @@ class MainWindow(QMainWindow):
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(openFile)
 
-        self.setGeometry(300, 300, 300, 200)
+        self.setGeometry(450, 450, 450, 400)
         self.setWindowTitle('Moonreader editor')
 
         self.show()
 
     def showDialog(self):
         search_dir = QFileDialog.getExistingDirectory(self, 'Open dir', HOME_DIR)
-        print(search_dir)
         handler = FilesystemDownloader()
         self.books = [b for b in handler.get_books(path=search_dir)]
+        self.booksTable.setSortingEnabled(False)
+        for indx, book in enumerate(self.books):
+            table_rows = self.booksTable.rowCount()
 
-        book_titles = "\n".join(b.title for b in self.books)
-        self.textEdit.setText(book_titles)
+            if indx >= table_rows:
+                self.booksTable.insertRow(table_rows)
+
+            self._fill_book_table_row(self.booksTable, indx, book)
+        self.booksTable.setSortingEnabled(True)
+
+    def _fill_book_table_row(self, table, index, book):
+        title = QTableWidgetItem(book.title)
+        pages = QTableWidgetItem(str(book.pages))
+        percentage = QTableWidgetItem(str(book.percentage))
+        notes = QTableWidgetItem(str(len(book.notes)))
+        table.setItem(index, 0, title)
+        table.setItem(index, 1, pages)
+        table.setItem(index, 2, percentage)
+        table.setItem(index, 3, notes)
 
 
 if __name__ == '__main__':
