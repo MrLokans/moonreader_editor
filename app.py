@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QTableWidget,
     QTableWidgetItem,
+    QMenu
 )
 
 logger = logging.getLogger('GUI')
@@ -52,9 +53,13 @@ class MainWindow(QMainWindow):
 
         self.booksTable = QTableWidget(1, BOOK_TABLE_COLUMNS, parent=self)
         self.booksTable.setHorizontalHeaderLabels(BOOK_TABLE_HEADER)
+        self.booksTable.setContextMenuPolicy(Qt.CustomContextMenu)
+
         self.textEdit = QTextEdit()
         self.setCentralWidget(self.booksTable)
         self.statusBar()
+
+        self.booksTable.customContextMenuRequested.connect(self.saveBookMenu)
 
         openFile = QAction('Open', self)
         openFile.setShortcut('Ctrl+O')
@@ -69,6 +74,14 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Moonreader editor')
 
         self.show()
+
+    def saveBookMenu(self, position):
+        menu = QMenu()
+        saveAction = menu.addAction("Save book")
+        action = menu.exec_(self.booksTable.mapToGlobal(position))
+        if action == saveAction:
+            bookTableItem = self.booksTable.itemAt(position)
+            bookRow = bookTableItem.row()
 
     def showDialog(self):
         search_dir = QFileDialog.getExistingDirectory(self, 'Open dir', HOME_DIR)
