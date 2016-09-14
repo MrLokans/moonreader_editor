@@ -81,7 +81,20 @@ class MainWindow(QMainWindow):
         action = menu.exec_(self.booksTable.mapToGlobal(position))
         if action == saveAction:
             bookTableItem = self.booksTable.itemAt(position)
-            bookRow = bookTableItem.row()
+            bookRowNumber = bookTableItem.row()
+            correspondingBook = self.books[bookRowNumber]
+
+            title = self.booksTable.item(bookRowNumber, 0)
+            pages = self.booksTable.item(bookRowNumber, 1)
+            percentage = self.booksTable.item(bookRowNumber, 2)
+            notes = self.booksTable.item(bookRowNumber, 3)
+
+            correspondingBook.title = title.text()
+            correspondingBook.pages = int(pages.text())
+            correspondingBook.percentage = float(percentage.text())
+            correspondingBook.notes = int(notes.text())
+
+            correspondingBook.save()
 
     def showDialog(self):
         search_dir = QFileDialog.getExistingDirectory(self, 'Open dir', HOME_DIR)
@@ -95,7 +108,6 @@ class MainWindow(QMainWindow):
                 self.booksTable.insertRow(table_rows)
 
             self._fill_book_table_row(self.booksTable, indx, book)
-        self.booksTable.setSortingEnabled(True)
 
     def _fill_book_table_row(self, table, index, book):
         title = QTableWidgetItem(book.title)
