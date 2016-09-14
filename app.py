@@ -4,7 +4,7 @@ import logging
 
 from moonreader_tools.handlers import FilesystemDownloader
 
-
+from PyQt5.QtCore import Qt, QVariant
 from PyQt5.QtWidgets import (
     QApplication,
     QLabel,
@@ -20,10 +20,25 @@ from PyQt5.QtWidgets import (
 logger = logging.getLogger('GUI')
 
 HOME_DIR = os.path.expanduser('~')
+HOME_DIR = '{}/Dropbox/Books/.Moon+/Cache'.format(HOME_DIR)
 
 
 BOOK_TABLE_COLUMNS = 4
 BOOK_TABLE_HEADER = ['title', 'pages', 'percentage', 'notes']
+
+
+class NumberTableItem(QTableWidgetItem):
+    # This class should later be used for custom
+    # table item sorting
+    def __lt__(self, other):
+        if isinstance(other, QTableWidgetItem):
+            value = self.data(Qt.EditRole)
+            other_value = other.data(Qt.EditRole)
+            try:
+                return float(value) < float(other_value)
+            except (ValueError, TypeError):
+                pass
+        return super().__lt__(other)
 
 
 class MainWindow(QMainWindow):
